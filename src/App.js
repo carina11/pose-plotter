@@ -1,5 +1,4 @@
-import logo from './logo.svg';
-import React, { createElement, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Plot from 'react-plotly.js';
 import Webcam from 'react-webcam';
@@ -7,10 +6,6 @@ import model from "./pose_landmarker_full.task"
 import {
   PoseLandmarker, FilesetResolver
 } from "@mediapipe/tasks-vision";
-
-
-
-
 
 
 function App() {
@@ -37,12 +32,12 @@ function App() {
   )
 
   //Handles Pose Detection
-  async function Mediapipe(){
+  async function Mediapipe() {
     const vision = await FilesetResolver.forVisionTasks(
       // path/to/wasm/root
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
-  
+
     const poseLandmarker = await PoseLandmarker.createFromOptions(
       vision,
       {
@@ -52,10 +47,10 @@ function App() {
         },
         runningMode: 'IMAGE'
       });
-      const image = document.getElementById('poseImage');
-      console.log(image)
-      const poseLandmarkerResult = poseLandmarker.detect(image);
-      return poseLandmarkerResult
+    const image = document.getElementById('poseImage');
+    console.log(image)
+    const poseLandmarkerResult = poseLandmarker.detect(image);
+    return poseLandmarkerResult
   }
 
   // Sorts the data and prepare for plotting
@@ -86,7 +81,7 @@ function App() {
         z: [z[8], z[6], z[5], z[4], z[0], z[1], z[2], z[3], z[7]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       },
       {
         x: [x[10], x[9]],
@@ -94,7 +89,7 @@ function App() {
         z: [z[10], z[9]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       },
       {
         x: [x[12], x[11], x[23], x[24], x[12]],
@@ -102,15 +97,15 @@ function App() {
         z: [z[12], z[11], z[23], z[24], z[12]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
-      }, 
+        marker: { color: "red" },
+      },
       {
         x: [x[12], x[14], x[16], x[18], x[20], x[16], x[22]],
         y: [y[12], y[14], y[16], y[18], y[20], y[16], y[22]],
         z: [z[12], z[14], z[16], z[18], z[20], z[16], z[22]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       },
       {
         x: [x[11], x[13], x[15], x[17], x[19], x[15], x[21]],
@@ -118,7 +113,7 @@ function App() {
         z: [z[11], z[13], z[15], z[17], z[19], z[15], z[21]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       },
       {
         x: [x[24], x[26], x[28], x[30], x[32]],
@@ -126,7 +121,7 @@ function App() {
         z: [z[24], z[26], z[28], z[30], z[32]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       },
       {
         x: [x[23], x[25], x[27], x[29], x[31]],
@@ -134,7 +129,7 @@ function App() {
         z: [z[23], z[25], z[27], z[29], z[31]],
         type: 'scatter3d',
         mode: 'lines',
-        marker: {color: "red"},
+        marker: { color: "red" },
       }
     ])
   }
@@ -142,7 +137,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img hidden src={base64} id='poseImage'/>
+        <img hidden src={base64} id='poseImage' />
         <Webcam
           audio={false}
           height={720}
@@ -156,7 +151,7 @@ function App() {
                 const imageSrc = getScreenshot()
                 setBase64(imageSrc)
                 Mediapipe().then((result) => {
-                  if(result.worldLandmarks){
+                  if (result.worldLandmarks) {
                     createData(result)
                   }
                 })
@@ -168,7 +163,7 @@ function App() {
         </Webcam>
         <Plot
           data={data}
-          layout={{width: 1280, height: 720}}
+          layout={{ width: 1280, height: 720 }}
         />
       </header>
     </div>
