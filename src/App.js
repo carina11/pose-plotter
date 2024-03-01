@@ -3,8 +3,9 @@ import './App.css';
 import Plot from 'react-plotly.js';
 import Webcam from 'react-webcam';
 import model from "./pose_landmarker_full.task"
+import faceModel from "./face_landmarker.task"
 import {
-  PoseLandmarker, FilesetResolver
+  PoseLandmarker, FilesetResolver, FaceLandmarker
 } from "@mediapipe/tasks-vision";
 
 
@@ -53,8 +54,29 @@ function App() {
     return poseLandmarkerResult
   }
 
+  async function faceLandmarkDetection(){
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    );
+
+    const faceLandmarker = await FaceLandmarker.createFromOptions(
+      vision,
+      {
+        baseOptions: {
+          modelAssetPath: faceModel,
+          delegate: "GPU"
+        },
+        runningMode: "IMAGE"
+      }
+    );
+    const image = document.getElementById('poseImage');
+    console.log(image)
+    const faceLandmarkerResult = faceLandmarker.detect(image);
+    return faceLandmarkerResult
+  }
+
   // Sorts the data and prepare for plotting
-  function createData(result) {
+  function createDataPose(result) {
     var x = [];
     var y = [];
     var z = [];
@@ -134,6 +156,32 @@ function App() {
     ])
   }
 
+  function createDataFace(result){
+    const landmarks = result.faceLandmarks[0];
+    var x = []
+    var y = []
+    var z = []
+
+    landmarks.forEach((landmark) => {
+      x.push(landmark.x)
+      y.push(landmark.y)
+      z.push(landmark.z)
+    })
+
+    setData([
+      {
+        x: x,
+        y: y,
+        z: z,
+        type: 'scatter3d',
+        mode: 'markers',
+        marker: {
+          size: 3,
+        }
+      }
+    ]);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -146,19 +194,33 @@ function App() {
           videoConstraints={videoConstraints}
         >
           {({ getScreenshot }) => (
+            <div>
             <button
               onClick={() => {
                 const imageSrc = getScreenshot()
                 setBase64(imageSrc)
                 Mediapipe().then((result) => {
                   if (result.worldLandmarks) {
-                    createData(result)
+                    createDataPose(result)
                   }
                 })
               }}
             >
-              Capture photo
+              Pose Detection
             </button>
+
+            <button
+              onClick={() => {
+                const imageSrc = getScreenshot()
+                setBase64(imageSrc)
+                faceLandmarkDetection().then((result) => {
+                  createDataFace(result)
+                })
+              }}
+            >
+              Face Landmark Detection
+            </button>
+            </div>
           )}
         </Webcam>
         <Plot
