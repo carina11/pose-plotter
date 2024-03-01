@@ -4,8 +4,9 @@ import Plot from 'react-plotly.js';
 import Webcam from 'react-webcam';
 import model from "./pose_landmarker_full.task"
 import faceModel from "./face_landmarker.task"
+import handModel from "./hand_landmarker.task"
 import {
-  PoseLandmarker, FilesetResolver, FaceLandmarker
+  PoseLandmarker, FilesetResolver, FaceLandmarker, HandLandmarker
 } from "@mediapipe/tasks-vision";
 
 
@@ -54,7 +55,7 @@ function App() {
     return poseLandmarkerResult
   }
 
-  async function faceLandmarkDetection(){
+  async function faceLandmarkDetection() {
     const vision = await FilesetResolver.forVisionTasks(
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
@@ -73,6 +74,27 @@ function App() {
     console.log(image)
     const faceLandmarkerResult = faceLandmarker.detect(image);
     return faceLandmarkerResult
+  }
+
+  async function handLandmarkDetection() {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    );
+
+    const handLandmarker = await HandLandmarker.createFromOptions(
+      vision,
+      {
+        baseOptions: {
+          modelAssetPath: handModel,
+          delegate: "GPU"
+        },
+        runningMode: "IMAGE"
+      }
+    );
+    const image = document.getElementById('poseImage');
+    console.log(image)
+    const handLandmarkerResult = handLandmarker.detect(image);
+    return handLandmarkerResult
   }
 
   // Sorts the data and prepare for plotting
@@ -156,7 +178,7 @@ function App() {
     ])
   }
 
-  function createDataFace(result){
+  function createDataFace(result) {
     const landmarks = result.faceLandmarks[0];
     var x = []
     var y = []
@@ -182,6 +204,72 @@ function App() {
     ]);
   }
 
+  function createDataHand(result) {
+    const landmarks = result.worldLandmarks[0];
+    var x = []
+    var y = []
+    var z = []
+
+    landmarks.forEach((landmark) => {
+      x.push(landmark.x)
+      y.push(landmark.y)
+      z.push(landmark.z)
+    })
+
+    setData([
+      {
+        x: x,
+        y: y,
+        z: z,
+        type: 'scatter3d',
+        mode: 'markers',
+        marker: {
+          size: 3,
+        }
+      },
+      {
+        x: [x[0], x[1], x[2], x[3], x[4]],
+        y: [y[0], y[1], y[2], y[3], y[4]],
+        z: [z[0], z[1], z[2], z[3], z[4]],
+        type: 'scatter3d',
+        mode: 'lines',
+        marker: { color: "red" },
+      },
+      {
+        x: [x[0], x[5], x[6], x[7], x[8]],
+        y: [y[0], y[5], y[6], y[7], y[8]],
+        z: [z[0], z[5], z[6], z[7], z[8]],
+        type: 'scatter3d',
+        mode: 'lines',
+        marker: { color: "red" },
+      },
+      {
+        x: [x[0], x[9], x[10], x[11], x[12]],
+        y: [y[0], y[9], y[10], y[11], y[12]],
+        z: [z[0], z[9], z[10], z[11], z[12]],
+        type: 'scatter3d',
+        mode: 'lines',
+        marker: { color: "red" },
+      },
+      {
+        x: [x[0], x[13], x[14], x[15], x[16]],
+        y: [y[0], y[13], y[14], y[15], y[16]],
+        z: [z[0], z[13], z[14], z[15], z[16]],
+        type: 'scatter3d',
+        mode: 'lines',
+        marker: { color: "red" },
+      },
+      {
+        x: [x[0], x[17], x[18], x[19], x[20]],
+        y: [y[0], y[17], y[18], y[19], y[20]],
+        z: [z[0], z[17], z[18], z[19], z[20]],
+        type: 'scatter3d',
+        mode: 'lines',
+        marker: { color: "red" },
+      }
+    ]);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -195,31 +283,42 @@ function App() {
         >
           {({ getScreenshot }) => (
             <div>
-            <button
-              onClick={() => {
-                const imageSrc = getScreenshot()
-                setBase64(imageSrc)
-                poseDetection().then((result) => {
-                  if (result.worldLandmarks) {
-                    createDataPose(result)
-                  }
-                })
-              }}
-            >
-              Pose Detection
-            </button>
+              <button
+                onClick={() => {
+                  const imageSrc = getScreenshot()
+                  setBase64(imageSrc)
+                  poseDetection().then((result) => {
+                    if (result.worldLandmarks) {
+                      createDataPose(result)
+                    }
+                  })
+                }}
+              >
+                Pose Detection
+              </button>
 
-            <button
-              onClick={() => {
-                const imageSrc = getScreenshot()
-                setBase64(imageSrc)
-                faceLandmarkDetection().then((result) => {
-                  createDataFace(result)
-                })
-              }}
-            >
-              Face Landmark Detection
-            </button>
+              <button
+                onClick={() => {
+                  const imageSrc = getScreenshot()
+                  setBase64(imageSrc)
+                  faceLandmarkDetection().then((result) => {
+                    createDataFace(result)
+                  })
+                }}
+              >
+                Face Landmark Detection
+              </button>
+              <button
+                onClick={() => {
+                  const imageSrc = getScreenshot()
+                  setBase64(imageSrc)
+                  handLandmarkDetection().then((result) => {
+                    createDataHand(result)
+                  })
+                }}
+              >
+                Hand Landmark Detection
+              </button>
             </div>
           )}
         </Webcam>
