@@ -33,7 +33,7 @@ function App() {
   )
 
   //Handles Pose Detection
-  async function Mediapipe() {
+  async function poseDetection() {
     const vision = await FilesetResolver.forVisionTasks(
       // path/to/wasm/root
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
@@ -199,7 +199,7 @@ function App() {
               onClick={() => {
                 const imageSrc = getScreenshot()
                 setBase64(imageSrc)
-                Mediapipe().then((result) => {
+                poseDetection().then((result) => {
                   if (result.worldLandmarks) {
                     createDataPose(result)
                   }
